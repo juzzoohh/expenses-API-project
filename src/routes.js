@@ -3,9 +3,18 @@ const {
   getAllExpensesHandler,
   getExpenseByIdHandler,
   editExpenseByIdHandler,
-} = require('./handler');
+  deleteExpenseByIdHandler,
+} = require('./handler/expenses');
+const { addWalletHandler } = require('./handler/wallets');
 
 const routes = [
+  {
+    method: 'POST',
+    path: '/wallets',
+    handler: addWalletHandler,
+  },
+
+  // --- ENDPOINT EXPENSES ---
   {
     method: 'POST',
     path: '/expenses',
@@ -26,10 +35,11 @@ const routes = [
     path: '/expenses/{id}',
     handler: editExpenseByIdHandler,
   },
-  // {
-  //   method: 'DELETE',
-  //   path: '/expenses/{id}',
-  // }
+  {
+    method: 'DELETE',
+    path: '/expenses/{id}',
+    handler: deleteExpenseByIdHandler,
+  },
 ];
 
 module.exports = routes;
