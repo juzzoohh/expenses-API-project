@@ -2,9 +2,11 @@ const { nanoid } = require('nanoid');
 const pool = require('../db');
 
 const addExpensesHandler = async (request, h) => {
-  const { name, amount, category, walletId } = request.payload;
-
-  if (!name || amount <= 0 || !category || !walletId) {
+  // Ambil 'type' dari payload (INCOME / EXPENSE)
+  const { name, amount, category, walletId, type } = request.payload;
+        // --- VALIDASI ---
+  // Pastikan type cuma boleh 'INCOME' atau 'EXPENSE'
+  if (!name || amount <= 0 || !category || !walletId || !['INCOME', 'EXPENSE'].includes(type)) {
     const response = h.response({
       status: 'fail',
       message:
@@ -18,48 +20,65 @@ const addExpensesHandler = async (request, h) => {
   const date = new Date().toISOString();
   const createdAt = date;
 
+      // --- LOGIKA SALDO ---
+  let queryUpdateWallet;
+
+  if(type === 'INCOME') {
+    // Kalau Pemasukan: Saldo DITAMBAH (+)
+    queryUpdateWallet = 'UPDATE wallets SET balance = balance + $1 WHERE id = $2 RETURNING balance';
+  } else {
+    // Kalau Pengeluaran: Saldo DIKURANGI (-)
+    queryUpdateWallet = 'UPDATE wallets SET balance = balance - $1 WHERE id = $2 AND balance >= 0 RETURNING balance';
+  }
+
+  
+
   const updateWalletQuery = {
     text: 'UPDATE wallets SET balance = balance - $1 WHERE id = $2 AND balance >= 0 RETURNING balance',
     values: [amount, walletId],
   };
   
-  
   try {
-    const walletResult = await pool.query(updateWalletQuery);
+    // Eksekusi Update Saldo (Sesuai Type)
+    const walletResult = await pool.query({
+      text: queryUpdateWallet,
+      values: [amount, walletId],
+    });
 
-    if (walletResult.rowCount === 0){
+    if (walletResult.rowCount === 0) {
       const response = h.response({
         status: 'fail',
-        message: 'Dompet tidak ditemukan, coba buat dompet baru',
+        message: 'Dompet tidak ditemukan!',
       });
       response.code(404);
       return response;
     }
+
+    // Eksekusi Update Saldo (Sesuai Type)
     const insertExpenseQuery = {
-      text: 'INSERT INTO expenses (id, name, amount, category, date, created_at, wallet_id) VALUES ($1, $2, $3, $4, $5, $6, $7 ) RETURNING id',
-      values: [id, name, amount, category, date, createdAt, walletId],
-    };
-
-    const expenseResult = await pool.query(insertExpenseQuery);
-
-    if (expenseResult.rows[0].id) {
-      const response = h.response({
-        status: 'success',
-        message: 'Pengeluaran dicatat & Saldo dompet terpotong',
-        data: {
-          expensesId: id,
-          sisaSaldo: walletResult.rows[0].balance //Memberi tahu jumlah saldo setelah dikurangi
-        },
-      });
-      response.code(201);
-      return response;
+      text: 'INSERT INTO expenses (id, name, amount, category, date, created_at, wallet_id, type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
+      values: [id, name, amount, category, date, createdAt, walletId, type],
     }
+
+    await pool.query(insertExpenseQuery);
+    const response = h.response({
+      status: 'success',
+      message: type === 'INCOME' ? 'Pemasukan berhasil!' : 'Pengeluaran berhasil!',
+      data: {
+        transactionId: id,
+        sisaSaldo: walletResult.rows[0].balance,
+        tipe: type,
+      },
+    }); 
+    response.code(201);
+    return response;
+
   } catch (error) {
     console.log('ERROR DATABSE TERPUTUS/TIDAK NYAMBUNG', error.message);
 
     const response = h.response({
       status: 'error',
-      message: 'Maaf, terjadi kesalahan pada database',
+      message: 'Transaksi Gagal!',
     });
     response.code(500);
     return response;
