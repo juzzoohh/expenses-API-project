@@ -1,4 +1,9 @@
-const { addExpensesHandler } = require('./handler');
+const {
+  addExpensesHandler,
+  getAllExpensesHandler,
+  getExpenseByIdHandler,
+  editExpenseByIdHandler,
+} = require('./handler');
 
 const routes = [
   {
@@ -6,18 +11,21 @@ const routes = [
     path: '/expenses',
     handler: addExpensesHandler,
   },
-  // {
-  //   method: 'GET',
-  //   path: '/expenses',
-  // },
-  // {
-  //   method: 'GET',
-  //   path: '/expenses/{id}',
-  // },
-  // {
-  //   method: 'PUT',
-  //   path: '/expenses/{id}',
-  // },
+  {
+    method: 'GET',
+    path: '/expenses',
+    handler: getAllExpensesHandler,
+  },
+  {
+    method: 'GET',
+    path: '/expenses/{id}',
+    handler: getExpenseByIdHandler,
+  },
+  {
+    method: 'PUT',
+    path: '/expenses/{id}',
+    handler: editExpenseByIdHandler,
+  },
   // {
   //   method: 'DELETE',
   //   path: '/expenses/{id}',
