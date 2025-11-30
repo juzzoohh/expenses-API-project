@@ -1,66 +1,53 @@
 const { nanoid } = require('nanoid');
 const pool = require('../db');
 
-const addExpensesHandler = async (request, h) => {
+const addExpenseHandler = async (request, h) => {
   // Ambil 'type' dari payload (INCOME / EXPENSE)
   const { name, amount, category, walletId, type } = request.payload;
-        // --- VALIDASI ---
-  // Pastikan type cuma boleh 'INCOME' atau 'EXPENSE'
-  if (!name || amount <= 0 || !category || !walletId || !['INCOME', 'EXPENSE'].includes(type)) {
-    const response = h.response({
-      status: 'fail',
-      message:
-        'Gagal menambahkan data, tolong input nama atau masukan jumlah lebih dari nol',
-    });
-    response.code(400);
-    return response;
-  }
 
   const id = nanoid(16);
   const date = new Date().toISOString();
   const createdAt = date;
 
-      // --- LOGIKA SALDO ---
-  let queryUpdateWallet;
+  // --- MULAI TRANSAKSI ---
+  const client = await pool.connect();
 
-  if(type === 'INCOME') {
-    // Kalau Pemasukan: Saldo DITAMBAH (+)
-    queryUpdateWallet = 'UPDATE wallets SET balance = balance + $1 WHERE id = $2 RETURNING balance';
-  } else {
-    // Kalau Pengeluaran: Saldo DIKURANGI (-)
-    queryUpdateWallet = 'UPDATE wallets SET balance = balance - $1 WHERE id = $2 AND balance >= 0 RETURNING balance';
-  }
-
-  
-
-  const updateWalletQuery = {
-    text: 'UPDATE wallets SET balance = balance - $1 WHERE id = $2 AND balance >= 0 RETURNING balance',
-    values: [amount, walletId],
-  };
-  
   try {
+      // --- LOGIKA SALDO ---
+      // "Tolong pantau semua perintah saya setelah ini. Jangan simpan permanen dulu."
+    await client.query('BEGIN')
+    
+    // --- QUERY 1: UPDATE SALDO ---
+    let queryUpdateWallet;
+    if (type === 'INCOME') {
+      // Kalau Pemasukan: Saldo DITAMBAH (+)
+      queryUpdateWallet = 'UPDATE wallets SET balance = balance + $1 WHERE id = $2 RETURNING balance';
+    } else {
+      // Kalau Pengeluaran: Saldo DIKURANGI (-)
+      queryUpdateWallet = 'UPDATE wallets SET balance = balance - $1 WHERE id = $2 AND balance >= 0 RETURNING balance';
+    }
     // Eksekusi Update Saldo (Sesuai Type)
-    const walletResult = await pool.query({
+    const walletResult = await client.query({
       text: queryUpdateWallet,
       values: [amount, walletId],
     });
 
-    if (walletResult.rowCount === 0) {
-      const response = h.response({
-        status: 'fail',
-        message: 'Dompet tidak ditemukan!',
-      });
-      response.code(404);
-      return response;
-    }
+    // throw new Error('BOOM! MATI LAMPU!');
 
+    if ( walletResult.rowCount === 0) {
+      throw new Error('DOMPET_TIDAK_DITEMUKAN!'); // Lempar error biar ditangkap catch
+    }
+    // --- QUERY 2: CATAT TRANSAKSI ---
     // Eksekusi Update Saldo (Sesuai Type)
     const insertExpenseQuery = {
       text: 'INSERT INTO expenses (id, name, amount, category, date, created_at, wallet_id, type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id',
       values: [id, name, amount, category, date, createdAt, walletId, type],
-    }
+    };
 
-    await pool.query(insertExpenseQuery);
+    await client.query(insertExpenseQuery);
+
+    // Stempel Resmi (COMMIT)
+    await client.query('COMMIT');
     const response = h.response({
       status: 'success',
       message: type === 'INCOME' ? 'Pemasukan berhasil!' : 'Pengeluaran berhasil!',
@@ -72,9 +59,12 @@ const addExpensesHandler = async (request, h) => {
     }); 
     response.code(201);
     return response;
-
   } catch (error) {
-    console.log('ERROR DATABSE TERPUTUS/TIDAK NYAMBUNG', error.message);
+    // Tombol Darurat (ROLLBACK)
+    // "Waduh ada error! Batalkan SEMUA perintah sejak BEGIN tadi. Kembalikan saldo seperti semula!"
+    await client.pool('ROLLBACK');
+
+    console.error('TRANSAKSI DIBATALKAN', error.message);
 
     const response = h.response({
       status: 'error',
@@ -82,6 +72,10 @@ const addExpensesHandler = async (request, h) => {
     });
     response.code(500);
     return response;
+  } finally {
+    // Kembalikan Klien (RELEASE)
+    // "Saya sudah selesai pakai jalurnya. Silakan dipakai orang lain."
+    client.release();
   }
 };
 
@@ -101,6 +95,7 @@ const getAllExpensesHandler = async (request, h) => {
       amount: expense.amount,
       category: expense.category,
       date: expense.date,
+      type: expense.type,
     }));
 
     return {
@@ -259,7 +254,7 @@ const deleteExpenseByIdHandler = async (request, h) => {
 };
 
 module.exports = {
-  addExpensesHandler,
+  addExpenseHandler,
   getAllExpensesHandler,
   getExpenseByIdHandler,
   editExpenseByIdHandler,

@@ -1,5 +1,7 @@
+const Joi = require('joi');
+
 const {
-  addExpensesHandler,
+  addExpenseHandler,
   getAllExpensesHandler,
   getExpenseByIdHandler,
   editExpenseByIdHandler,
@@ -18,7 +20,21 @@ const routes = [
   {
     method: 'POST',
     path: '/expenses',
-    handler: addExpensesHandler,
+    handler: addExpenseHandler,
+    options: {
+      validate: {
+        payload: Joi.object({
+          name: Joi.string().min(3).required(), // Minimal 3 huruf
+          amount: Joi.number().integer().min(1).required(), // Angka bulat, minimal 1
+          category: Joi.string().required(),
+          walletId: Joi.string().required(),
+          type: Joi.string().valid('INCOME', 'EXPENSE').required(), // Cuma boleh 2 kata ini
+        }),
+        failAction: (request, h, err) => {
+          throw err;
+        },
+      },
+    },
   },
   {
     method: 'GET',
