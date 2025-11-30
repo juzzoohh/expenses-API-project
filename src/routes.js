@@ -1,22 +1,37 @@
 const Joi = require('joi');
-
 const {
   addExpenseHandler,
   getAllExpensesHandler,
   getExpenseByIdHandler,
   editExpenseByIdHandler,
   deleteExpenseByIdHandler,
-} = require('./handler/expenses');
-const { addWalletHandler } = require('./handler/wallets');
+} = require('./handler/expenses/handler');
+const { addWalletHandler } = require('./handler/wallets/handler');
+const { addUserHandler } = require('./handler/users/handler')
+const { loginUserHandler } = require('./handler/auth/handler')
 
 const routes = [
+  // --- ROUTES AUTHENTIFICATION --- 
+  {
+    method: 'POST',
+    path: '/users',
+    handler: addUserHandler,
+  },
+
+  {
+    method: 'POST',
+    path: '/login',
+    handler: loginUserHandler,
+  },
+
+  // --- ROUTE WALLET ---
   {
     method: 'POST',
     path: '/wallets',
     handler: addWalletHandler,
   },
 
-  // --- ENDPOINT EXPENSES ---
+  // --- ROUTES EXPENSE ---
   {
     method: 'POST',
     path: '/expenses',

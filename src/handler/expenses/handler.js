@@ -1,5 +1,5 @@
 const { nanoid } = require('nanoid');
-const pool = require('../db');
+const pool = require('../../db');
 
 const addExpenseHandler = async (request, h) => {
   // Ambil 'type' dari payload (INCOME / EXPENSE)
@@ -13,18 +13,20 @@ const addExpenseHandler = async (request, h) => {
   const client = await pool.connect();
 
   try {
-      // --- LOGIKA SALDO ---
-      // "Tolong pantau semua perintah saya setelah ini. Jangan simpan permanen dulu."
-    await client.query('BEGIN')
-    
+    // --- LOGIKA SALDO ---
+    // "Tolong pantau semua perintah saya setelah ini. Jangan simpan permanen dulu."
+    await client.query('BEGIN');
+
     // --- QUERY 1: UPDATE SALDO ---
     let queryUpdateWallet;
     if (type === 'INCOME') {
       // Kalau Pemasukan: Saldo DITAMBAH (+)
-      queryUpdateWallet = 'UPDATE wallets SET balance = balance + $1 WHERE id = $2 RETURNING balance';
+      queryUpdateWallet =
+        'UPDATE wallets SET balance = balance + $1 WHERE id = $2 RETURNING balance';
     } else {
       // Kalau Pengeluaran: Saldo DIKURANGI (-)
-      queryUpdateWallet = 'UPDATE wallets SET balance = balance - $1 WHERE id = $2 AND balance >= 0 RETURNING balance';
+      queryUpdateWallet =
+        'UPDATE wallets SET balance = balance - $1 WHERE id = $2 AND balance >= 0 RETURNING balance';
     }
     // Eksekusi Update Saldo (Sesuai Type)
     const walletResult = await client.query({
@@ -34,7 +36,7 @@ const addExpenseHandler = async (request, h) => {
 
     // throw new Error('BOOM! MATI LAMPU!');
 
-    if ( walletResult.rowCount === 0) {
+    if (walletResult.rowCount === 0) {
       throw new Error('DOMPET_TIDAK_DITEMUKAN!'); // Lempar error biar ditangkap catch
     }
     // --- QUERY 2: CATAT TRANSAKSI ---
@@ -50,13 +52,14 @@ const addExpenseHandler = async (request, h) => {
     await client.query('COMMIT');
     const response = h.response({
       status: 'success',
-      message: type === 'INCOME' ? 'Pemasukan berhasil!' : 'Pengeluaran berhasil!',
+      message:
+        type === 'INCOME' ? 'Pemasukan berhasil!' : 'Pengeluaran berhasil!',
       data: {
         transactionId: id,
         sisaSaldo: walletResult.rows[0].balance,
         tipe: type,
       },
-    }); 
+    });
     response.code(201);
     return response;
   } catch (error) {

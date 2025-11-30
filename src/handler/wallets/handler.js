@@ -1,10 +1,10 @@
 const { nanoid } = require('nanoid');
-const pool = require('../db');
+const pool = require('../../db');
 
 const addWalletHandler = async (request, h) => {
   const { name, balance } = request.payload;
 
-  if(!name || balance === undefined) {
+  if (!name || balance === undefined) {
     const response = h.response({
       status: 'fail',
       message: 'Mohon isi nama dompet atau saldo awal',
@@ -23,14 +23,14 @@ const addWalletHandler = async (request, h) => {
   try {
     const result = await pool.query(query);
 
-    if (result.rows[0].id){
-    const response = h.response({
-      status: 'success',
-      message: 'Berhasil menambahkan dompet!',
-    });
-    response.code(201);
-    return response;
-  }
+    if (result.rows[0].id) {
+      const response = h.response({
+        status: 'success',
+        message: 'Berhasil menambahkan dompet!',
+      });
+      response.code(201);
+      return response;
+    }
   } catch (error) {
     console.error('GAGAL SERVER RUSAK', error.message);
 
@@ -41,5 +41,5 @@ const addWalletHandler = async (request, h) => {
     response.code(500);
     return response;
   }
-}
+};
 module.exports = { addWalletHandler };
