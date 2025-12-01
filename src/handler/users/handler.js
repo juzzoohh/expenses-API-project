@@ -46,6 +46,9 @@ const addUserHandler = async (request, h) => {
       const response = h.response({
         status: 'success',
         message: 'Selamat anda berhasil mendaftar!',
+        data: {
+          userId: id,
+        },
       });
       response.code(201);
       return response;

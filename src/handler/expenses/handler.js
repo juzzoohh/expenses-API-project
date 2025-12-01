@@ -83,10 +83,36 @@ const addExpenseHandler = async (request, h) => {
 };
 
 const getAllExpensesHandler = async (request, h) => {
-  // --- QUERY SQL ---
-  // Pakai "ORDER BY created_at DESC" biar yang baru diinput muncul paling atas.
+  // Contoh URL: /expenses?name=nasi&category=Makanan
+  const { name, category } = request.query;
+
+  let text = 'SELECT * FROM expenses';
+  const values = [];
+  const conditions = [];
+
+  // Skenario A: User mencari Nama
+  if (name){
+    conditions.push(`name ILIKE $${values.length + 1}`);
+    values.push(`%${name}%`);
+  }
+
+  // Skenario B: User mencari Kategori
+  if (category) {
+    conditions.push(`category ILIKE $${values.length + 1}`);
+    values.push(`%${category}%`);
+  }
+
+  // Gabungkan kondisi dengan 'AND' (jika ada filter)
+  if (conditions.length > 0) {
+    text += ' WHERE ' + conditions.join(' AND ');
+  }
+
+  // Selalu urutkan dari yang terbaru
+  text += ' ORDER BY created_at DESC';
+
   const query = {
-    text: 'SELECT * FROM expenses ORDER BY created_at DESC',
+    text: text,
+    values: values,
   };
 
   try {
@@ -99,6 +125,7 @@ const getAllExpensesHandler = async (request, h) => {
       category: expense.category,
       date: expense.date,
       type: expense.type,
+      walletId: expense.wallet_id
     }));
 
     return {
@@ -106,18 +133,19 @@ const getAllExpensesHandler = async (request, h) => {
       data: {
         expenses: expenses,
       },
-    };
-  } catch (error) {
-    console.error('GAGAL MENGAMBIL DATA', error.message);
+    }
 
+  } catch (error) {
+    console.error('ERROR GET:', error.message);
     const response = h.response({
       status: 'error',
-      message: 'Maaf server, masih pusing',
+      message: 'Gagal ambil data',
     });
     response.code(500);
     return response;
   }
 };
+
 
 const getExpenseByIdHandler = async (request, h) => {
   const { id } = request.params;

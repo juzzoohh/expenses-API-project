@@ -21,7 +21,7 @@ const init = async () => {
 
   const server = Hapi.server({ // nah baru si variable ini dijalankan ketika sudah start
     port: (process.env.PORT == 5432) ? 9000 : (process.env.PORT || 9000),
-    host: process.env.PGHOST || 'localhost',
+    host: process.env.HOST || 'localhost',
     routes: {
       cors: {
         origin: ['*'],
@@ -49,7 +49,7 @@ const init = async () => {
     validate: (artifacts, request, h) => {
       return {
         isValid: true,
-        credential: {
+        credentials: {
           id: artifacts.decoded.payload.id,
           username: artifacts.decoded.payload.username,
         },
