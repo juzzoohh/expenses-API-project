@@ -9,8 +9,19 @@ const {
 const { addWalletHandler } = require('./handler/wallets/handler');
 const { addUserHandler } = require('./handler/users/handler')
 const { loginUserHandler } = require('./handler/auth/handler')
+const { getFinancialReportHandler } = require('./handler/reports/handler');
 
 const routes = [
+  // --- ROUTES REPORTS ---
+  {
+    method: 'GET',
+    path: '/reports',
+    handler: getFinancialReportHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
+  },
+
   // --- ROUTES AUTHENTIFICATION --- 
   {
     method: 'POST',
