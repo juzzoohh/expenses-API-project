@@ -19,7 +19,7 @@ const init = async () => {
       process.exit(1); 
   }
 
-  const server = Hapi.server({ // nah baru si variable ini dijalankan ketika sudah start
+  const server = Hapi.server({ 
     port: (process.env.PORT == 5432) ? 9000 : (process.env.PORT || 9000),
     host: process.env.HOST || 'localhost',
     routes: {
@@ -60,7 +60,7 @@ const init = async () => {
   
   server.route(routes);
 
-  await server.start(); // ini akan dijalankan dahulu
+  await server.start(); 
   console.log(`Server sedang berjalan pada ${server.info.uri}`);
   // Debugging: Pastikan Token Key terbaca
   console.log("Token Key loaded:", process.env.ACCESS_TOKEN_KEY ? "YES" : "NO");

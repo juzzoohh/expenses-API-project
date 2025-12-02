@@ -40,6 +40,9 @@ const routes = [
     method: 'POST',
     path: '/wallets',
     handler: addWalletHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
   },
 
   // --- ROUTES EXPENSE ---
@@ -48,6 +51,7 @@ const routes = [
     path: '/expenses',
     handler: addExpenseHandler,
     options: {
+      auth: 'jwt_strategy',
       validate: {
         payload: Joi.object({
           name: Joi.string().min(3).required(), // Minimal 3 huruf
@@ -66,21 +70,43 @@ const routes = [
     method: 'GET',
     path: '/expenses',
     handler: getAllExpensesHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
   },
   {
     method: 'GET',
     path: '/expenses/{id}',
     handler: getExpenseByIdHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
   },
   {
     method: 'PUT',
     path: '/expenses/{id}',
     handler: editExpenseByIdHandler,
+    options: {
+      auth: 'jwt_strategy',
+      validate: {
+        payload: Joi.object({
+          name: Joi.string().min(3).required(),
+          amount: Joi.number().integer().min(1).required(),
+          category: Joi.string().required(),
+        }),
+        failAction: (request, h, err) => {
+          throw err;
+        },
+      },
+    },
   },
   {
     method: 'DELETE',
     path: '/expenses/{id}',
     handler: deleteExpenseByIdHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
   },
 ];
 

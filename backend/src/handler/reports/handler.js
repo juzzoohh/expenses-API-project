@@ -2,14 +2,12 @@ const pool = require('../../db');
 
 const getFinancialReportHandler = async (request, h) => {
   try {
-    // 1. QUERY SUMMARY (Tetap sama)
+    // 1. QUERY SUMMARY
     const summaryQuery = {
       text: `SELECT type, SUM(amount) AS total FROM expenses GROUP BY type`,
     };
 
-    // 2. QUERY CATEGORY (DIPERBAIKI)
-    // - Hapus 'WHERE type = EXPENSE' (Supaya income juga keambil)
-    // - Tambah kolom 'type' di SELECT dan GROUP BY (Supaya bisa difilter di JS)
+    // 2. QUERY CATEGORY
     const categoryQuery = {
       text: `SELECT category, type, SUM(amount) AS total 
              FROM expenses 
@@ -23,28 +21,28 @@ const getFinancialReportHandler = async (request, h) => {
     ]);
 
     // --- SUMMARY LOGIC ---
-    const incomeRow = summaryResult.rows.find(row => row.type === 'INCOME');
+    const incomeRow = summaryResult.rows.find((row) => row.type === 'INCOME');
     const totalIncome = parseInt(incomeRow ? incomeRow.total : 0);
 
-    const expenseRow = summaryResult.rows.find(row => row.type === 'EXPENSE');
+    const expenseRow = summaryResult.rows.find((row) => row.type === 'EXPENSE');
     const totalExpense = parseInt(expenseRow ? expenseRow.total : 0);
 
     const netBalance = totalIncome - totalExpense;
-    
+
     // 3. Filter Income Categories
     const incomeCategories = categoryResult.rows
-      .filter(row => row.type === 'INCOME') // Variabel konsisten pakai 'row'
-      .map(row => ({
-          category: row.category, 
-          total: parseInt(row.total) 
+      .filter((row) => row.type === 'INCOME') 
+      .map((row) => ({
+        category: row.category,
+        total: parseInt(row.total),
       }));
 
     // 4. Filter Expense Categories
     const expenseCategories = categoryResult.rows
-      .filter(row => row.type === 'EXPENSE') // Variabel konsisten pakai 'row'
-      .map(row => ({
-          category: row.category, 
-          total: parseInt(row.total) 
+      .filter((row) => row.type === 'EXPENSE') 
+      .map((row) => ({
+        category: row.category,
+        total: parseInt(row.total),
       }));
 
     return {
@@ -58,11 +56,10 @@ const getFinancialReportHandler = async (request, h) => {
         },
         breakdown: {
           income: incomeCategories,
-          expense: expenseCategories
-        }
+          expense: expenseCategories,
+        },
       },
     };
-
   } catch (error) {
     console.error('ERROR REPORT:', error.message);
     const response = h.response({
