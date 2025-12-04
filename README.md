@@ -148,10 +148,10 @@ Project ini menggunakan PostgreSQL. Pastikan kamu sudah membuat database bernama
 
 ## 👤 Author
 
-Dibuat dengan ❤️ dan ☕ oleh **[Nama Kamu]**.
+Dibuat dengan ❤️ dan ☕ oleh **[Juzzoohh]**.
 
 Temukan saya di:
 
-  - **GitHub:** [github.com/username-kamu](https://www.google.com/search?q=https://github.com/juzzoohh)
-  - **Instagram:** [@username-kamu](https://www.google.com/search?q=https://instagram.com/sanrozii)
-  - **LinkedIn:** [linkedin.com/in/username-kamu](https://www.google.com/search?q=https://linkedin.com/in/muhamad-ichsan-fachrulrozi-50216731b)
+  - **GitHub:** [github.com/juzzoohh](https://www.google.com/search?q=https://github.com/juzzoohh)
+  - **Instagram:** [@sanrozii](https://www.google.com/search?q=https://instagram.com/sanrozii)
+  - **LinkedIn:** [linkedin.com/in/muhamad-ichsan-fachrulrozi](https://www.google.com/search?q=https://linkedin.com/in/muhamad-ichsan-fachrulrozi-50216731b)
