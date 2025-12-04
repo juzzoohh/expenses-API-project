@@ -6,12 +6,70 @@ const {
   editExpenseByIdHandler,
   deleteExpenseByIdHandler,
 } = require('./handler/expenses/handler');
-const { addWalletHandler } = require('./handler/wallets/handler');
-const { addUserHandler } = require('./handler/users/handler')
+const { addWalletHandler, getWalletsHandler, deleteWalletHandler } = require('./handler/wallets/handler');
+const { addUserHandler, getUserProfileHandler, editUserProfileHandler, changePasswordHandler } = require('./handler/users/handler');
 const { loginUserHandler } = require('./handler/auth/handler')
 const { getFinancialReportHandler } = require('./handler/reports/handler');
+const { addGoalHandler, getGoalsHandler, updateGoalAmountHandler } = require('./handler/goals/handler');
 
 const routes = [
+  // --- ROUTES USER PROFILE ---
+  {
+    method: 'GET',
+    path: '/users/profile',
+    handler: getUserProfileHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
+  },
+
+  {
+    method: 'PUT',
+    path: '/users/profile',
+    handler: editUserProfileHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
+  },
+
+  {
+    method: 'PUT',
+    path: '/users/password',
+    handler: changePasswordHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
+  },
+
+
+  // --- ROUTES GOALS ---
+  {
+    method: 'POST',
+    path: '/goals',
+    handler: addGoalHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
+  }, 
+
+  {
+    method: 'GET',
+    path: '/goals',
+    handler: getGoalsHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
+  }, 
+
+  {
+    method: 'PUT',
+    path: '/goals/{id}',
+    handler: updateGoalAmountHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
+  },
+
   // --- ROUTES REPORTS ---
   {
     method: 'GET',
@@ -40,6 +98,24 @@ const routes = [
     method: 'POST',
     path: '/wallets',
     handler: addWalletHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
+  },
+
+  {
+    method: 'GET',
+    path: '/wallets',
+    handler: getWalletsHandler, 
+    options: {
+      auth: 'jwt_strategy',
+    },
+  },
+
+  {
+    method: 'DELETE',
+    path: '/wallets',
+    handler: deleteWalletHandler,
     options: {
       auth: 'jwt_strategy',
     },
