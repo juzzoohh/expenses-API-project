@@ -1,9 +1,11 @@
 # 💰 Fina - Personal Finance Assistant
 
-**Fina** adalah aplikasi manajemen keuangan pribadi modern...
-(deskripsi singkat...)
+**Fina** adalah aplikasi manajemen keuangan pribadi modern (Fullstack) yang dirancang untuk membantu pengguna melacak pendapatan, pengeluaran, dan merencanakan masa depan finansial dengan bantuan AI.
 
-![License](...) ![Vue](...) (badges...)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Vue](https://img.shields.io/badge/frontend-Vue.js_3-42b883)
+![Node](https://img.shields.io/badge/backend-Hapi.js-orange)
+![Database](https://img.shields.io/badge/database-PostgreSQL-336791)
 
 ---
 
@@ -13,7 +15,7 @@ Berikut adalah tampilan antarmuka Fina yang responsif dan modern:
 
 | **Desktop Dashboard** | **Mobile View** |
 |:---:|:---:|
-| ![Desktop Dashboard](./src/assets/Desktop.png) | ![Mobile View](./src/assets/Adnroid.png) |
+| ![Desktop Dashboard](./src/assets/Desktop.png) | ![Mobile View](./src/assets/Android.png) |
 
 > *Tampilan Dark Mode yang nyaman di mata dengan visualisasi data interaktif.*
 
