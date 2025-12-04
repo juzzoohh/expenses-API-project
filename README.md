@@ -15,7 +15,7 @@ Berikut adalah tampilan antarmuka Fina yang responsif dan modern:
 
 | **Desktop Dashboard** | **Mobile View** |
 |:---:|:---:|
-| ![Desktop Dashboard](./src/assets/Desktop.png) | ![Mobile View](./src/assets/Android.png) |
+| ![Desktop Dashboard](./frontend/src/assets/Desktop.png) | ![Mobile View](./frontend/src/assets/Android.png) |
 
 > *Tampilan Dark Mode yang nyaman di mata dengan visualisasi data interaktif.*
 
