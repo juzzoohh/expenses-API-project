@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import api from '../api';
 import { useAuthStore } from '../stores/auth';
 
 const auth = useAuthStore();
@@ -17,9 +17,7 @@ const formatRupiah = (val) =>
 
 const fetchGoals = async () => {
   try {
-    const res = await axios.get('http://localhost:9000/goals', {
-      headers: { Authorization: `Bearer ${auth.token}` },
-    });
+    const res = await api.get('/goals');
     goals.value = res.data.data.goals;
   } catch (error) {
     console.error('Gagal load goals', error);
@@ -28,9 +26,7 @@ const fetchGoals = async () => {
 
 const addGoal = async () => {
   try {
-    await axios.post('http://localhost:9000/goals', form.value, {
-      headers: { Authorization: `Bearer ${auth.token}` },
-    });
+    await api.post('/goals', form.value);
     isModalOpen.value = false;
     form.value = { name: '', targetAmount: '', startAmount: '' };
     fetchGoals();
@@ -47,13 +43,12 @@ const updateSavings = async (id, currentAmount) => {
   if (!amount) return;
 
   try {
-    await axios.put(
-      `http://localhost:9000/goals/${id}`,
+    await api.put(
+      `/goals/${id}`,
       {
         amount: parseInt(amount),
         type: 'add',
       },
-      { headers: { Authorization: `Bearer ${auth.token}` } }
     );
     fetchGoals();
   } catch (err) {

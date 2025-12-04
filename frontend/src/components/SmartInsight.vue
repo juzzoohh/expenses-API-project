@@ -1,58 +1,56 @@
 <script setup>
-import { computed } from 'vue';
+import { ref, onMounted } from 'vue';
+import api from '../api';
 
-const props = defineProps(['summary', 'expenseBreakdown']);
+const advice = ref('Sedang menganalisa kebiasaanmu...');
+const isLoading = ref(true);
 
-const advice = computed(() => {
-  const { totalIncome, totalExpense } = props.summary;
-  const expenses = props.expenseBreakdown || [];
-
-  // 1. Analisa Kesehatan Umum
-  if (totalIncome === 0) return { title: "Data Kurang", text: "Ayo catat pemasukanmu dulu biar aku bisa kasih saran!", color: "text-text-muted" };
-  
-  const savingsRate = ((totalIncome - totalExpense) / totalIncome) * 100;
-
-  // 2. Analisa Kategori Terboros
-  // Urutkan pengeluaran dari terbesar
-  const topExpense = [...expenses].sort((a, b) => b.total - a.total)[0];
-
-  let message = "";
-  let statusColor = "text-white";
-
-  if (savingsRate < 0) {
-    message = `🚨 BAHAYA! Kamu defisit ${Math.abs(savingsRate).toFixed(1)}%. Pengeluaranmu lebih besar dari pemasukan. Stop jajan!`;
-    statusColor = "text-danger";
-  } else if (savingsRate < 20) {
-    message = `⚠️ Hati-hati. Kamu cuma menyisihkan ${savingsRate.toFixed(1)}% uangmu. Target idealnya minimal 20%.`;
-    statusColor = "text-orange-400";
-  } else {
-    message = `✅ Mantap! Kamu berhasil menabung ${savingsRate.toFixed(1)}% dari pendapatanmu. Pertahankan!`;
-    statusColor = "text-success";
+const fetchInsight = async () => {
+  try {
+    const res = await api.get('/ai-insight');
+    advice.value = res.data.data.insight;
+  } catch (error) {
+    advice.value = 'Gagal menghubungi otak AI.';
+  } finally {
+    isLoading.value = false;
   }
+};
 
-  // Tambahan saran spesifik
-  if (topExpense) {
-    message += ` Uangmu paling banyak habis di "${topExpense.category}". Coba dikontrol ya.`;
-  }
-
-  return { title: "Financial Health", text: message, color: statusColor };
-});
+onMounted(fetchInsight);
 </script>
 
 <template>
-  <div class="bg-card-bg p-6 rounded-3xl border border-white/5 h-full">
-    <div class="flex items-center gap-3 mb-3">
-      <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-xl">
-        🤖
+  <div
+    class="bg-card-bg p-6 rounded-3xl border border-white/5 h-full flex flex-col relative overflow-hidden"
+  >
+    <div
+      class="absolute -right-10 -top-10 w-32 h-32 bg-accent/20 rounded-full blur-3xl"
+    ></div>
+
+    <div class="flex items-center gap-3 mb-4 relative z-10">
+      <div
+        class="w-10 h-10 rounded-full bg-gradient-to-tr from-accent to-purple-500 flex items-center justify-center text-xl shadow-lg shadow-purple-500/30"
+      >
+        ✨
       </div>
-      <h3 class="text-white font-bold text-lg">Smart Advisor</h3>
+      <div>
+        <h3 class="text-white font-bold text-lg">Gemini Advisor</h3>
+        <p class="text-[10px] text-text-muted">Powered by Google AI</p>
+      </div>
     </div>
-    
-    <div class="bg-dashboard-bg p-4 rounded-xl border border-white/5">
-      <h4 :class="`font-bold mb-2 ${advice.color}`">{{ advice.title }}</h4>
-      <p class="text-text-muted text-sm leading-relaxed">
-        {{ advice.text }}
-      </p>
+
+    <div
+      class="bg-dashboard-bg p-4 rounded-xl border border-white/5 flex-1 relative z-10 overflow-y-auto"
+    >
+      <div v-if="isLoading" class="animate-pulse space-y-2">
+        <div class="h-2 bg-white/10 rounded w-3/4"></div>
+        <div class="h-2 bg-white/10 rounded w-1/2"></div>
+        <div class="h-2 bg-white/10 rounded w-full"></div>
+      </div>
+
+      <div v-else class="text-white text-sm leading-relaxed space-y-2">
+        <span v-html="advice"></span>
+      </div>
     </div>
   </div>
 </template>

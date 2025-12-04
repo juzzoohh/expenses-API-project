@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import axios from 'axios';
+import api from '../api';
 import { useAuthStore } from '../stores/auth';
 import StatCard from '../components/StatCard.vue';
 import RecentTrans from '../components/RecentTrans.vue';
@@ -8,6 +8,7 @@ import ModalAdd from '../components/ModalAdd.vue';
 import ModalWallets from '../components/ModalWallets.vue';
 import ExpenseChart from '../components/ExpenseChart.vue';
 import SmartInsight from '../components/SmartInsight.vue';
+import UpcomingBills from '../components/UpcomingBills.vue'; // Sudah diimport
 
 const auth = useAuthStore();
 const summary = ref({ totalIncome: 0, totalExpense: 0, netBalance: 0 });
@@ -17,16 +18,13 @@ const isWalletModalOpen = ref(false);
 const expenseBreakdown = ref([]);
 
 const formatRupiah = (val) =>
-  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
-    val
-  );
+  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(val);
 
 const fetchData = async () => {
-  const config = { headers: { Authorization: `Bearer ${auth.token}` } };
   try {
     const [resReport, resExp] = await Promise.all([
-      axios.get('http://localhost:9000/reports', config),
-      axios.get('http://localhost:9000/expenses', config),
+      api.get('/reports'),
+      api.get('/expenses')
     ]);
     summary.value = resReport.data.data.summary;
     expenseBreakdown.value = resReport.data.data.breakdown.expense;
@@ -63,6 +61,7 @@ onMounted(fetchData);
     </header>
 
     <div class="grid grid-cols-12 gap-6">
+      
       <div class="col-span-12 md:col-span-4">
         <StatCard
           title="Total Balance"
@@ -88,13 +87,10 @@ onMounted(fetchData);
         />
       </div>
 
-      <div
-        class="col-span-12 lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6"
-      >
+      <div class="col-span-12 lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="h-64 md:h-auto">
           <ExpenseChart :breakdown="expenseBreakdown" />
         </div>
-
         <div>
           <SmartInsight
             :summary="summary"
@@ -102,9 +98,19 @@ onMounted(fetchData);
           />
         </div>
       </div>
-      <div class="col-span-12 lg:col-span-4">
-        <RecentTrans :transactions="recentTx" />
+
+      <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+        
+        <div>
+            <UpcomingBills />
+        </div>
+
+        <div class="flex-1">
+            <RecentTrans :transactions="recentTx" />
+        </div>
+
       </div>
+
     </div>
 
     <ModalAdd

@@ -1,10 +1,11 @@
 <script setup>
 import { ref } from 'vue';
-import axios from 'axios';
+import api from '../api';
+import { useRouter } from 'vue-router'; 
 import { useAuthStore } from '../stores/auth';
 
 const auth = useAuthStore();
-
+const router = useRouter();
 // State untuk Mode (Login atau Register)
 const isRegisterMode = ref(false);
 const isLoading = ref(false);
@@ -31,7 +32,7 @@ const handleSubmit = async () => {
   try {
     if (isRegisterMode.value) {
       // --- LOGIKA REGISTER ---
-      await axios.post('http://localhost:9000/users', {
+      await api.post('/users', {
         username: form.value.username,
         password: form.value.password,
         fullname: form.value.fullname
@@ -49,7 +50,7 @@ const handleSubmit = async () => {
       // --- LOGIKA LOGIN ---
       const success = await auth.login(form.value.username, form.value.password);
       if (success) {
-        window.location.reload(); 
+        router.push('/');
       } else {
         message.value = { text: 'Username atau Password Salah!', type: 'error' };
       }

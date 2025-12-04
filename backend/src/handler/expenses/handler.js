@@ -92,7 +92,7 @@ const addExpenseHandler = async (request, h) => {
 
 // --- 2. GET ALL EXPENSES ---
 const getAllExpensesHandler = async (request, h) => {
-  const { name, category } = request.query;
+  const { name, category, startDate, endDate } = request.query;
   const { id: credentialId } = request.auth.credentials; // Ambil ID User
 
   // Query : gabungkan expenses dengan wallets untuk cek pemiliknya
@@ -115,18 +115,24 @@ const getAllExpensesHandler = async (request, h) => {
     values.push(`%${category}%`);
   }
 
+  if (startDate && endDate) {
+    // Tambahkan kondisi rentang tanggal
+    conditions.push(`expenses.date::DATE >= $${values.length + 1}::DATE`);
+    values.push(startDate);
+    
+    conditions.push(`expenses.date::DATE <= $${values.length + 1}::DATE`);
+    values.push(endDate);
+  }
+
   // Gabungkan kondisi tambahan
   if (conditions.length > 0) {
     text += ' AND ' + conditions.join(' AND ');
   }
 
   // Urutkan secara descending
-  text += ' ORDER BY expenses.created_at DESC';
+  text += ' ORDER BY expenses.date DESC, expenses.created_at DESC';
 
-  const query = {
-    text: text,
-    values: values,
-  };
+  const query = { text, values };
 
   try {
     const result = await pool.query(query);
@@ -141,12 +147,7 @@ const getAllExpensesHandler = async (request, h) => {
       walletId: expense.wallet_id
     }));
 
-    return {
-      status: 'success',
-      data: {
-        expenses: expenses,
-      },
-    };
+    return { status: 'success', data: { expenses } };
 
   } catch (error) {
     console.error('❌ ERROR GET:', error.message);

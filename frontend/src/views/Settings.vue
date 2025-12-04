@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import api from '../api';
 import { useAuthStore } from '../stores/auth';
 
 const auth = useAuthStore();
@@ -16,9 +16,7 @@ const passwordForm = ref({ oldPassword: '', newPassword: '', confirmPassword: ''
 // 1. Ambil Data Profil Saat Masuk
 const fetchProfile = async () => {
   try {
-    const res = await axios.get('http://localhost:9000/users/profile', {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    });
+    const res = await api.get('/users/profile');
     profileForm.value = res.data.data.user;
   } catch (error) { console.error(error); }
 };
@@ -27,9 +25,9 @@ const fetchProfile = async () => {
 const updateProfile = async () => {
   isLoading.value = true;
   try {
-    await axios.put('http://localhost:9000/users/profile', {
+    await api.put('/users/profile', {
       fullname: profileForm.value.fullname
-    }, { headers: { Authorization: `Bearer ${auth.token}` } });
+    });
     alert('Nama berhasil diubah!');
   } catch (error) { alert('Gagal update profil'); }
   finally { isLoading.value = false; }
@@ -43,10 +41,10 @@ const changePassword = async () => {
   
   isLoading.value = true;
   try {
-    await axios.put('http://localhost:9000/users/password', {
+    await api.put('/users/password', {
       oldPassword: passwordForm.value.oldPassword,
       newPassword: passwordForm.value.newPassword
-    }, { headers: { Authorization: `Bearer ${auth.token}` } });
+    });
     
     alert('Password berhasil diganti! Silakan login ulang.');
     auth.logout(); // Logout paksa demi keamanan

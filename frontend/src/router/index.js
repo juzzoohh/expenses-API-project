@@ -4,6 +4,10 @@ import Goals from '../views/Goals.vue';
 import Login from '../components/Login.vue';
 import Transactions from '../views/Transactions.vue';
 import Settings from '../views/Settings.vue';
+import Budgets from '../views/Budgets.vue';
+import Categories from '../views/Categories.vue';
+import Converter from '../views/Converter.vue';
+import Subscriptions from '../views/Subscriptions.vue';
 
 // Guard sederhana: Cek token sebelum masuk
 const requireAuth = (to, from, next) => {
@@ -15,6 +19,30 @@ const requireAuth = (to, from, next) => {
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/subscriptions',
+      name: 'subscriptions',
+      component: Subscriptions,
+      beforeEnter: requireAuth,
+    },
+    {
+      path: '/tools',
+      name: 'tools',
+      component: Converter,
+      beforeEnter: requireAuth,
+    },
+    {
+      path: '/categories',
+      name: 'categories',
+      component: Categories,
+      beforeEnter: requireAuth,
+    },
+    {
+      path: '/budgeting',
+      name: 'budgeting',
+      component: Budgets,
+      beforeEnter: requireAuth,
+    },
     {
       path: '/settings',
       name: 'settings',

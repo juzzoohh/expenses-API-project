@@ -6,13 +6,123 @@ const {
   editExpenseByIdHandler,
   deleteExpenseByIdHandler,
 } = require('./handler/expenses/handler');
-const { addWalletHandler, getWalletsHandler, deleteWalletHandler } = require('./handler/wallets/handler');
-const { addUserHandler, getUserProfileHandler, editUserProfileHandler, changePasswordHandler } = require('./handler/users/handler');
-const { loginUserHandler } = require('./handler/auth/handler')
+const {
+  addWalletHandler,
+  getWalletsHandler,
+  deleteWalletHandler,
+} = require('./handler/wallets/handler');
+const {
+  addUserHandler,
+  getUserProfileHandler,
+  editUserProfileHandler,
+  changePasswordHandler,
+} = require('./handler/users/handler');
+const { loginUserHandler } = require('./handler/auth/handler');
 const { getFinancialReportHandler } = require('./handler/reports/handler');
-const { addGoalHandler, getGoalsHandler, updateGoalAmountHandler } = require('./handler/goals/handler');
+const {
+  addGoalHandler,
+  getGoalsHandler,
+  updateGoalAmountHandler,
+} = require('./handler/goals/handler');
+const {
+  setBudgetHandler,
+  getBudgetStatusHandler,
+} = require('./handler/budgets/handler');
+const {
+  getCategoriesHandler,
+  addCategoryHandler,
+  deleteCategoryHandler,
+} = require('./handler/categories/handler');
+const {
+  addSubscriptionHandler,
+  getSubscriptionsHandler,
+  paySubscriptionHandler,
+  deleteSubscriptionHandler,
+} = require('./handler/subscriptions/handler');
+const { getAiInsightHandler } = require('./handler/ai/handler');
 
 const routes = [
+  // --- ROUTES GEMINI AI ---
+  {
+    method: 'GET',
+    path: '/ai-insight',
+    handler: getAiInsightHandler,
+    options: { auth: 'jwt_strategy' },
+  },
+
+  // --- ROUTES SUBSCRIPTIONS ---
+  {
+    method: 'POST',
+    path: '/subscriptions',
+    handler: addSubscriptionHandler,
+    options: { auth: 'jwt_strategy' },
+  },
+  {
+    method: 'GET',
+    path: '/subscriptions',
+    handler: getSubscriptionsHandler,
+    options: { auth: 'jwt_strategy' },
+  },
+  {
+    method: 'POST',
+    path: '/subscriptions/{id}/pay',
+    handler: paySubscriptionHandler,
+    options: { auth: 'jwt_strategy' },
+  },
+  {
+    method: 'DELETE',
+    path: '/subscriptions/{id}',
+    handler: deleteSubscriptionHandler,
+    options: { auth: 'jwt_strategy' },
+  },
+
+  // --- ROUTES CATEGORIES ---
+  {
+    method: 'GET',
+    path: '/categories',
+    handler: getCategoriesHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
+  },
+
+  {
+    method: 'POST',
+    path: '/categories',
+    handler: addCategoryHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
+  },
+
+  {
+    method: 'DELETE',
+    path: '/categories/{id}',
+    handler: deleteCategoryHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
+  },
+
+  // --- ROUTES BUDGETS ---
+  {
+    method: 'POST',
+    path: '/budgets',
+    handler: setBudgetHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
+  },
+
+  {
+    method: 'GET',
+    path: '/budgets',
+    handler: getBudgetStatusHandler,
+    options: {
+      auth: 'jwt_strategy',
+    },
+  },
+
   // --- ROUTES USER PROFILE ---
   {
     method: 'GET',
@@ -41,7 +151,6 @@ const routes = [
     },
   },
 
-
   // --- ROUTES GOALS ---
   {
     method: 'POST',
@@ -50,7 +159,7 @@ const routes = [
     options: {
       auth: 'jwt_strategy',
     },
-  }, 
+  },
 
   {
     method: 'GET',
@@ -59,7 +168,7 @@ const routes = [
     options: {
       auth: 'jwt_strategy',
     },
-  }, 
+  },
 
   {
     method: 'PUT',
@@ -80,7 +189,7 @@ const routes = [
     },
   },
 
-  // --- ROUTES AUTHENTIFICATION --- 
+  // --- ROUTES AUTHENTIFICATION ---
   {
     method: 'POST',
     path: '/users',
@@ -106,7 +215,7 @@ const routes = [
   {
     method: 'GET',
     path: '/wallets',
-    handler: getWalletsHandler, 
+    handler: getWalletsHandler,
     options: {
       auth: 'jwt_strategy',
     },
