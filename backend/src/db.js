@@ -1,20 +1,12 @@
-// require('dotenv').config();
-
+require('dotenv').config();
 const { Pool } = require('pg');
 
-// Cek apakah Environment Variables terbaca. 
-// Kalau log ini muncul "undefined" di Vercel, berarti kamu belum setting Env Vars di Dashboard Vercel.
-console.log("Mencoba connect ke DB Host:", process.env.PGHOST);
-
 const pool = new Pool({
-  host: process.env.PGHOST,
   user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
+  host: process.env.PGHOST,
   database: process.env.PGDATABASE,
-  port: process.env.PGPORT || 5432,
-  ssl: {
-    rejectUnauthorized: false, // <--- INI WAJIB UNTUK SUPABASE DI VERCEL
-  },
+  password: process.env.PGPASSWORD,
+  port: process.env.PGPORT,
 });
 
 pool.query('SELECT NOW ()', (err, res) => {
