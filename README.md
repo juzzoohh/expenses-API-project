@@ -1,17 +1,15 @@
 # 💰 Fina - Personal Finance Assistant
 
-<<<<<<< HEAD
 **Fina** adalah aplikasi manajemen keuangan pribadi modern yang dirancang untuk membantu Anda melacak, merencanakan, dan mengontrol keuangan dengan cerdas.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Vue](https://img.shields.io/badge/vue.js-v3-green) ![Node](https://img.shields.io/badge/node.js-v18-green)
-=======
+
 **Fina** adalah aplikasi manajemen keuangan pribadi modern (Fullstack) yang dirancang untuk membantu pengguna melacak pendapatan, pengeluaran, dan merencanakan masa depan finansial dengan bantuan AI.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Vue](https://img.shields.io/badge/frontend-Vue.js_3-42b883)
 ![Node](https://img.shields.io/badge/backend-Hapi.js-orange)
 ![Database](https://img.shields.io/badge/database-PostgreSQL-336791)
->>>>>>> f8d8caba59aefcf9e2c5e68b718392427a36a72f
 
 ---
 
@@ -160,7 +158,6 @@ Project ini menggunakan PostgreSQL. Pastikan kamu sudah membuat database bernama
 
 ## 👤 Author
 
-<<<<<<< HEAD
 Dibuat dengan ❤️ dan ☕ oleh **Juzzoohh**.
 
 Temukan saya di:
@@ -168,12 +165,3 @@ Temukan saya di:
   - **GitHub:** [github.com/juzzoohh](https://github.com/juzzoohh)
   - **Instagram:** [@sanrozii](https://instagram.com/sanrozii)
   - **LinkedIn:** [Muhamad Ichsan Fachrulrozi](https://www.google.com/search?q=https://linkedin.com/in/muhamad-ichsan-fachrulrozi-50216731b)
-=======
-Dibuat dengan ❤️ dan ☕ oleh **[Juzzoohh]**.
-
-Temukan saya di:
-
-  - **GitHub:** [github.com/juzzoohh](https://www.google.com/search?q=https://github.com/juzzoohh)
-  - **Instagram:** [@sanrozii](https://www.google.com/search?q=https://instagram.com/sanrozii)
-  - **LinkedIn:** [linkedin.com/in/muhamad-ichsan-fachrulrozi](https://www.google.com/search?q=https://linkedin.com/in/muhamad-ichsan-fachrulrozi-50216731b)
->>>>>>> f8d8caba59aefcf9e2c5e68b718392427a36a72f
