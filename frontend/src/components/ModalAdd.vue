@@ -1,34 +1,34 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
+import { useThemeStore } from '../stores/theme';
 import api from '../api';
-import { useAuthStore } from '../stores/auth';
 
+const theme = useThemeStore();
 const props = defineProps(['isOpen']);
 const emit = defineEmits(['close', 'refresh']);
-const auth = useAuthStore();
 
 const form = ref({
   name: '',
   amount: '',
-  category: '', // Nanti diisi otomatis
+  category: '',
   type: 'EXPENSE',
   walletId: '',
 });
 
 const wallets = ref([]);
-const categories = ref([]); // Data mentah semua kategori
+const categories = ref([]);
 
-// Filter kategori sesuai tipe yang dipilih (Income/Expense)
+// Filter kategori sesuai tipe yang dipilih
 const filteredCategories = computed(() => {
   return categories.value.filter((c) => c.type === form.value.type);
 });
 
-// Ambil Data Dompet & Kategori sekaligus
+// Ambil Data Dompet & Kategori
 const initData = async () => {
   try {
     const [resWallets, resCats] = await Promise.all([
-      api.get('9000/wallets'),
-      api.get('9000/categories'),
+      api.get('/wallets'),
+      api.get('/categories'),
     ]);
 
     wallets.value = resWallets.data.data.wallets;
@@ -37,7 +37,7 @@ const initData = async () => {
     // Set Default Wallet
     if (wallets.value.length > 0) form.value.walletId = wallets.value[0].id;
 
-    // Set Default Category (Pilih yang pertama dari list expense)
+    // Set Default Category
     setFirstCategory();
   } catch (error) {
     console.error('Gagal load data', error);
@@ -50,7 +50,7 @@ const setFirstCategory = () => {
   if (available.length > 0) {
     form.value.category = available[0].name;
   } else {
-    form.value.category = ''; // Kosong jika tidak ada kategori
+    form.value.category = '';
   }
 };
 
@@ -64,9 +64,7 @@ watch(
 
 const handleSubmit = async () => {
   try {
-    await axios.post('http://localhost:9000/expenses', form.value, {
-      headers: { Authorization: `Bearer ${auth.token}` },
-    });
+    await api.post('/expenses', form.value);
     alert('Berhasil disimpan!');
     emit('refresh');
     emit('close');
@@ -86,12 +84,29 @@ onMounted(initData);
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
   >
     <div
-      class="bg-card-bg w-full max-w-md p-6 rounded-2xl border border-white/10 shadow-2xl"
+      :class="[
+        'w-full max-w-md p-6 rounded-2xl border shadow-2xl',
+        theme.isDark 
+          ? 'bg-card-bg border-white/10' 
+          : 'bg-white border-gray-200'
+      ]"
     >
-      <h2 class="text-xl font-bold text-white mb-4">Add Transaction</h2>
+      <h2 
+        :class="[
+          'text-xl font-bold mb-4',
+          theme.isDark ? 'text-white' : 'text-gray-900'
+        ]"
+      >
+        Add Transaction
+      </h2>
 
       <form @submit.prevent="handleSubmit" class="space-y-4">
-        <div class="flex bg-dashboard-bg p-1 rounded-lg">
+        <div 
+          :class="[
+            'flex p-1 rounded-lg',
+            theme.isDark ? 'bg-dashboard-bg' : 'bg-gray-100'
+          ]"
+        >
           <button
             type="button"
             @click="form.type = 'EXPENSE'"
@@ -119,33 +134,69 @@ onMounted(initData);
         </div>
 
         <div>
-          <label class="text-xs text-text-muted">Transaction Name</label>
+          <label 
+            :class="[
+              'text-xs',
+              theme.isDark ? 'text-text-muted' : 'text-gray-600'
+            ]"
+          >
+            Transaction Name
+          </label>
           <input
             v-model="form.name"
             type="text"
             required
-            class="w-full bg-dashboard-bg border border-white/10 rounded-lg p-3 text-white focus:border-accent outline-none"
+            :class="[
+              'w-full border rounded-lg p-3 focus:border-accent outline-none',
+              theme.isDark 
+                ? 'bg-dashboard-bg text-white border-white/10' 
+                : 'bg-gray-50 text-gray-900 border-gray-200'
+            ]"
             placeholder="e.g. Nasi Goreng"
           />
         </div>
 
         <div>
-          <label class="text-xs text-text-muted">Amount (Rp)</label>
+          <label 
+            :class="[
+              'text-xs',
+              theme.isDark ? 'text-text-muted' : 'text-gray-600'
+            ]"
+          >
+            Amount (Rp)
+          </label>
           <input
             v-model="form.amount"
             type="number"
             required
-            class="w-full bg-dashboard-bg border border-white/10 rounded-lg p-3 text-white focus:border-accent outline-none"
+            :class="[
+              'w-full border rounded-lg p-3 focus:border-accent outline-none',
+              theme.isDark 
+                ? 'bg-dashboard-bg text-white border-white/10' 
+                : 'bg-gray-50 text-gray-900 border-gray-200'
+            ]"
             placeholder="e.g. 15000"
           />
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="text-xs text-text-muted">Category</label>
+            <label 
+              :class="[
+                'text-xs',
+                theme.isDark ? 'text-text-muted' : 'text-gray-600'
+              ]"
+            >
+              Category
+            </label>
             <select
               v-model="form.category"
-              class="w-full bg-dashboard-bg border border-white/10 rounded-lg p-3 text-white outline-none"
+              :class="[
+                'w-full border rounded-lg p-3 outline-none',
+                theme.isDark 
+                  ? 'bg-dashboard-bg text-white border-white/10' 
+                  : 'bg-gray-50 text-gray-900 border-gray-200'
+              ]"
               required
             >
               <option
@@ -162,10 +213,22 @@ onMounted(initData);
           </div>
 
           <div>
-            <label class="text-xs text-text-muted">Wallet</label>
+            <label 
+              :class="[
+                'text-xs',
+                theme.isDark ? 'text-text-muted' : 'text-gray-600'
+              ]"
+            >
+              Wallet
+            </label>
             <select
               v-model="form.walletId"
-              class="w-full bg-dashboard-bg border border-white/10 rounded-lg p-3 text-white outline-none"
+              :class="[
+                'w-full border rounded-lg p-3 outline-none',
+                theme.isDark 
+                  ? 'bg-dashboard-bg text-white border-white/10' 
+                  : 'bg-gray-50 text-gray-900 border-gray-200'
+              ]"
             >
               <option v-for="w in wallets" :key="w.id" :value="w.id">
                 {{ w.name }}
@@ -178,7 +241,12 @@ onMounted(initData);
           <button
             type="button"
             @click="$emit('close')"
-            class="flex-1 py-3 text-text-muted hover:text-white transition"
+            :class="[
+              'flex-1 py-3 transition',
+              theme.isDark 
+                ? 'text-text-muted hover:text-white' 
+                : 'text-gray-600 hover:text-gray-900'
+            ]"
           >
             Cancel
           </button>

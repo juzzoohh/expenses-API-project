@@ -1,18 +1,17 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import api from '../api'; // Pastikan path ini benar
-import { useAuthStore } from '../stores/auth';
+import { useThemeStore } from '../stores/theme';
+import api from '../api';
 import ModalAdd from '../components/ModalAdd.vue';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-const auth = useAuthStore();
+const theme = useThemeStore();
 const transactions = ref([]);
 const isModalOpen = ref(false);
 const isLoading = ref(false);
 const categories = ref([]);
 
-// State untuk Filter
 const filters = ref({
   name: '',
   category: '',
@@ -22,11 +21,9 @@ const filters = ref({
 
 const setDefaultDates = () => {
   const date = new Date();
-  // Hari pertama bulan ini (yyyy-mm-dd)
   const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
     .toISOString()
     .slice(0, 10);
-  // Hari ini
   const today = new Date().toISOString().slice(0, 10);
 
   filters.value.startDate = firstDay;
@@ -40,17 +37,13 @@ const formatRupiah = (val) =>
     maximumFractionDigits: 0,
   }).format(val);
 
-// Fetch Data dengan Filter
 const fetchTransactions = async () => {
   isLoading.value = true;
   const params = new URLSearchParams();
 
   if (filters.value.name) params.append('name', filters.value.name);
   if (filters.value.category) params.append('category', filters.value.category);
-
-  // Kirim parameter tanggal ke backend
-  if (filters.value.startDate)
-    params.append('startDate', filters.value.startDate);
+  if (filters.value.startDate) params.append('startDate', filters.value.startDate);
   if (filters.value.endDate) params.append('endDate', filters.value.endDate);
 
   try {
@@ -63,29 +56,25 @@ const fetchTransactions = async () => {
   }
 };
 
-// Hapus Transaksi
 const deleteTransaction = async (id, name) => {
   if (!confirm(`Hapus transaksi "${name}"? Saldo dompet akan dikembalikan.`))
     return;
 
   try {
     await api.delete(`/expenses/${id}`);
-    fetchTransactions(); // Refresh data
+    fetchTransactions();
   } catch (error) {
     alert('Gagal menghapus transaksi.');
   }
 };
 
-// Download PDF Logic
 const downloadPDF = () => {
   const doc = new jsPDF();
 
-  // 1. Header Judul
   doc.setFontSize(18);
   doc.setTextColor(40, 40, 40);
   doc.text('Laporan Keuangan', 14, 20);
 
-  // 2. Info Periode & Tanggal Cetak
   doc.setFontSize(10);
   doc.setTextColor(100);
 
@@ -99,7 +88,6 @@ const downloadPDF = () => {
   doc.text(`Periode: ${periodText}`, 14, 30);
   doc.text(`Dicetak: ${new Date().toLocaleDateString('id-ID')}`, 14, 36);
 
-  // 3. Hitung Total
   const totalIncome = transactions.value
     .filter((t) => t.type === 'INCOME')
     .reduce((sum, t) => sum + parseInt(t.amount), 0);
@@ -111,7 +99,6 @@ const downloadPDF = () => {
   doc.text(`Total Masuk: ${formatRupiah(totalIncome)}`, 140, 30);
   doc.text(`Total Keluar: ${formatRupiah(totalExpense)}`, 140, 36);
 
-  // 4. Tabel Data
   const tableBody = transactions.value.map((t) => [
     new Date(t.date).toLocaleDateString('id-ID'),
     t.name,
@@ -151,7 +138,6 @@ const fetchCategories = async () => {
   }
 };
 
-// Watchers
 let timeout = null;
 watch(
   () => filters.value.name,
@@ -176,15 +162,32 @@ onMounted(() => {
   <div>
     <header class="flex justify-between items-center mb-8">
       <div>
-        <h1 class="text-3xl font-bold text-white">Transaction History</h1>
-        <p class="text-text-muted mt-1">
+        <h1 
+          :class="[
+            'text-3xl font-bold',
+            theme.isDark ? 'text-white' : 'text-gray-900'
+          ]"
+        >
+          Transaction History
+        </h1>
+        <p 
+          :class="[
+            'mt-1',
+            theme.isDark ? 'text-text-muted' : 'text-gray-600'
+          ]"
+        >
           Kelola semua pemasukan & pengeluaranmu
         </p>
       </div>
       <div class="flex gap-3">
         <button
           @click="downloadPDF"
-          class="bg-card-bg border border-white/10 hover:border-accent text-white px-4 py-3 rounded-xl font-bold transition flex items-center gap-2"
+          :class="[
+            'border px-4 py-3 rounded-xl font-bold transition flex items-center gap-2',
+            theme.isDark 
+              ? 'bg-card-bg border-white/10 hover:border-accent text-white' 
+              : 'bg-white border-gray-200 hover:border-accent text-gray-900'
+          ]"
           title="Download PDF"
         >
           📄 PDF
@@ -199,20 +202,35 @@ onMounted(() => {
     </header>
 
     <div
-      class="bg-card-bg p-4 rounded-2xl border border-white/5 mb-6 flex flex-col gap-4"
+      :class="[
+        'p-4 rounded-2xl border mb-6 flex flex-col gap-4',
+        theme.isDark 
+          ? 'bg-card-bg border-white/5' 
+          : 'bg-white border-gray-200'
+      ]"
     >
       <div class="flex gap-4 flex-col md:flex-row">
         <div class="flex-1">
           <input
             v-model="filters.name"
             placeholder="🔍 Cari transaksi..."
-            class="w-full bg-dashboard-bg p-3 rounded-xl text-white border border-white/10 focus:border-accent outline-none"
+            :class="[
+              'w-full p-3 rounded-xl border focus:border-accent outline-none',
+              theme.isDark 
+                ? 'bg-dashboard-bg text-white border-white/10' 
+                : 'bg-gray-50 text-gray-900 border-gray-200'
+            ]"
           />
         </div>
         <div class="w-full md:w-48">
           <select
             v-model="filters.category"
-            class="w-full bg-dashboard-bg p-3 rounded-xl text-white border border-white/10 focus:border-accent outline-none cursor-pointer"
+            :class="[
+              'w-full p-3 rounded-xl border focus:border-accent outline-none cursor-pointer',
+              theme.isDark 
+                ? 'bg-dashboard-bg text-white border-white/10' 
+                : 'bg-gray-50 text-gray-900 border-gray-200'
+            ]"
           >
             <option value="">Semua Kategori</option>
             <option v-for="c in categories" :key="c.id" :value="c.name">
@@ -223,19 +241,41 @@ onMounted(() => {
       </div>
 
       <div
-        class="flex gap-4 items-center bg-dashboard-bg p-3 rounded-xl border border-white/5"
+        :class="[
+          'flex gap-4 items-center p-3 rounded-xl border',
+          theme.isDark 
+            ? 'bg-dashboard-bg border-white/5' 
+            : 'bg-gray-50 border-gray-200'
+        ]"
       >
-        <span class="text-text-muted text-sm font-bold ml-2">📅 Periode:</span>
+        <span 
+          :class="[
+            'text-sm font-bold ml-2',
+            theme.isDark ? 'text-text-muted' : 'text-gray-600'
+          ]"
+        >
+          📅 Periode:
+        </span>
         <input
           type="date"
           v-model="filters.startDate"
-          class="bg-card-bg text-white p-2 rounded-lg border border-white/10 focus:border-accent outline-none text-sm"
+          :class="[
+            'p-2 rounded-lg border focus:border-accent outline-none text-sm',
+            theme.isDark 
+              ? 'bg-card-bg text-white border-white/10' 
+              : 'bg-white text-gray-900 border-gray-200'
+          ]"
         />
-        <span class="text-white">-</span>
+        <span :class="theme.isDark ? 'text-white' : 'text-gray-900'">-</span>
         <input
           type="date"
           v-model="filters.endDate"
-          class="bg-card-bg text-white p-2 rounded-lg border border-white/10 focus:border-accent outline-none text-sm"
+          :class="[
+            'p-2 rounded-lg border focus:border-accent outline-none text-sm',
+            theme.isDark 
+              ? 'bg-card-bg text-white border-white/10' 
+              : 'bg-white text-gray-900 border-gray-200'
+          ]"
         />
 
         <button
@@ -247,9 +287,23 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="bg-card-bg rounded-3xl border border-white/5 overflow-hidden">
+    <div 
+      :class="[
+        'rounded-3xl border overflow-hidden',
+        theme.isDark 
+          ? 'bg-card-bg border-white/5' 
+          : 'bg-white border-gray-200 shadow-sm'
+      ]"
+    >
       <table class="w-full text-left">
-        <thead class="bg-white/5 text-text-muted text-xs uppercase font-bold">
+        <thead 
+          :class="[
+            'text-xs uppercase font-bold',
+            theme.isDark 
+              ? 'bg-white/5 text-text-muted' 
+              : 'bg-gray-50 text-gray-600'
+          ]"
+        >
           <tr>
             <th class="p-4">Transaction</th>
             <th class="p-4">Category</th>
@@ -258,11 +312,19 @@ onMounted(() => {
             <th class="p-4 text-center">Action</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-white/5">
+        <tbody 
+          :class="[
+            'divide-y',
+            theme.isDark ? 'divide-white/5' : 'divide-gray-200'
+          ]"
+        >
           <tr
             v-for="tx in transactions"
             :key="tx.id"
-            class="hover:bg-white/5 transition"
+            :class="[
+              'transition',
+              theme.isDark ? 'hover:bg-white/5' : 'hover:bg-gray-50'
+            ]"
           >
             <td class="p-4">
               <div class="flex items-center gap-3">
@@ -275,16 +337,33 @@ onMounted(() => {
                 >
                   {{ tx.type === 'INCOME' ? '↓' : '↑' }}
                 </div>
-                <span class="font-bold text-white">{{ tx.name }}</span>
+                <span 
+                  :class="[
+                    'font-bold',
+                    theme.isDark ? 'text-white' : 'text-gray-900'
+                  ]"
+                >
+                  {{ tx.name }}
+                </span>
               </div>
             </td>
-            <td class="p-4 text-sm text-text-muted">
+            <td class="p-4 text-sm">
               <span
-                class="bg-dashboard-bg px-2 py-1 rounded border border-white/10"
+                :class="[
+                  'px-2 py-1 rounded border',
+                  theme.isDark 
+                    ? 'bg-dashboard-bg border-white/10 text-text-muted' 
+                    : 'bg-gray-50 border-gray-200 text-gray-600'
+                ]"
                 >{{ tx.category }}</span
               >
             </td>
-            <td class="p-4 text-sm text-text-muted">
+            <td 
+              :class="[
+                'p-4 text-sm',
+                theme.isDark ? 'text-text-muted' : 'text-gray-600'
+              ]"
+            >
               {{ new Date(tx.date).toLocaleDateString() }}
             </td>
             <td
@@ -298,7 +377,12 @@ onMounted(() => {
             <td class="p-4 text-center">
               <button
                 @click="deleteTransaction(tx.id, tx.name)"
-                class="text-text-muted hover:text-danger transition"
+                :class="[
+                  'transition',
+                  theme.isDark 
+                    ? 'text-text-muted hover:text-danger' 
+                    : 'text-gray-400 hover:text-danger'
+                ]"
                 title="Hapus"
               >
                 🗑️
@@ -307,7 +391,13 @@ onMounted(() => {
           </tr>
 
           <tr v-if="transactions.length === 0 && !isLoading">
-            <td colspan="5" class="p-8 text-center text-text-muted">
+            <td 
+              colspan="5" 
+              :class="[
+                'p-8 text-center',
+                theme.isDark ? 'text-text-muted' : 'text-gray-500'
+              ]"
+            >
               Tidak ada transaksi yang ditemukan.
             </td>
           </tr>

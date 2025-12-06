@@ -1,15 +1,17 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import api from '../api';
+import { useThemeStore } from '../stores/theme';
 import { useAuthStore } from '../stores/auth';
+import api from '../api';
 import StatCard from '../components/StatCard.vue';
 import RecentTrans from '../components/RecentTrans.vue';
 import ModalAdd from '../components/ModalAdd.vue';
 import ModalWallets from '../components/ModalWallets.vue';
 import ExpenseChart from '../components/ExpenseChart.vue';
 import SmartInsight from '../components/SmartInsight.vue';
-import UpcomingBills from '../components/UpcomingBills.vue'; // Sudah diimport
+import UpcomingBills from '../components/UpcomingBills.vue';
 
+const theme = useThemeStore();
 const auth = useAuthStore();
 const summary = ref({ totalIncome: 0, totalExpense: 0, netBalance: 0 });
 const recentTx = ref([]);
@@ -41,13 +43,32 @@ onMounted(fetchData);
   <div>
     <header class="flex justify-between items-center mb-8">
       <div>
-        <h1 class="text-3xl font-bold text-white">My Dashboard</h1>
-        <p class="text-text-muted mt-1">Overview of your finance status</p>
+        <h1 
+          :class="[
+            'text-3xl font-bold',
+            theme.isDark ? 'text-white' : 'text-gray-900'
+          ]"
+        >
+          My Dashboard
+        </h1>
+        <p 
+          :class="[
+            'mt-1',
+            theme.isDark ? 'text-text-muted' : 'text-gray-600'
+          ]"
+        >
+          Overview of your finance status
+        </p>
       </div>
       <div class="flex gap-3">
         <button
           @click="isWalletModalOpen = true"
-          class="bg-card-bg border border-white/10 hover:border-accent text-white px-4 py-3 rounded-xl font-bold transition"
+          :class="[
+            'border px-4 py-3 rounded-xl font-bold transition',
+            theme.isDark 
+              ? 'bg-card-bg border-white/10 hover:border-accent text-white' 
+              : 'bg-white border-gray-200 hover:border-accent text-gray-900'
+          ]"
         >
           💳 Wallets
         </button>

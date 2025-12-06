@@ -1,12 +1,42 @@
+<script setup>
+import { useThemeStore } from '../stores/theme';
+
+const theme = useThemeStore();
+</script>
+
 <template>
-  <footer class="mt-auto py-6 border-t border-white/10 text-center">
+  <footer 
+    :class="[
+      'mt-auto py-6 border-t text-center',
+      theme.isDark 
+        ? 'border-white/10' 
+        : 'border-gray-200'
+    ]"
+  >
     <div class="flex flex-col items-center gap-2">
-      <p class="text-text-muted text-sm">
+      <p 
+        :class="[
+          'text-sm',
+          theme.isDark ? 'text-text-muted' : 'text-gray-600'
+        ]"
+      >
         &copy; {{ new Date().getFullYear() }}
-        <span class="font-bold text-white">Fina App</span>. All rights reserved.
+        <span 
+          :class="[
+            'font-bold',
+            theme.isDark ? 'text-white' : 'text-gray-900'
+          ]"
+        >
+          Fina App
+        </span>. All rights reserved.
       </p>
 
-      <p class="text-xs text-text-muted">
+      <p 
+        :class="[
+          'text-xs',
+          theme.isDark ? 'text-text-muted' : 'text-gray-500'
+        ]"
+      >
         Dibuat dengan ❤️ dan ☕ oleh
         <a
           href="https://github.com/juzzoohh"
@@ -21,7 +51,12 @@
         <a
           href="https://github.com/juzzoohh"
           target="_blank"
-          class="text-text-muted hover:text-white transition"
+          :class="[
+            'transition',
+            theme.isDark 
+              ? 'text-text-muted hover:text-white' 
+              : 'text-gray-400 hover:text-gray-900'
+          ]"
         >
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
             <path
@@ -33,7 +68,12 @@
         <a
           href="https://instagram.com/sanrozii"
           target="_blank"
-          class="text-text-muted hover:text-white transition"
+          :class="[
+            'transition',
+            theme.isDark 
+              ? 'text-text-muted hover:text-white' 
+              : 'text-gray-400 hover:text-gray-900'
+          ]"
         >
           <svg
             class="w-5 h-5"

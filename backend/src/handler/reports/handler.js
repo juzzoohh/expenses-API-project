@@ -1,18 +1,28 @@
 const pool = require('../../db');
 
 const getFinancialReportHandler = async (request, h) => {
+  const { id: credentialId } = request.auth.credentials; // TAMBAHAN PENTING!
+  
   try {
-    // 1. QUERY SUMMARY
+    // 1. QUERY SUMMARY - FILTER BY USER
     const summaryQuery = {
-      text: `SELECT type, SUM(amount) AS total FROM expenses GROUP BY type`,
+      text: `SELECT type, SUM(amount) AS total 
+             FROM expenses 
+             LEFT JOIN wallets ON expenses.wallet_id = wallets.id
+             WHERE wallets.owner = $1
+             GROUP BY type`,
+      values: [credentialId] // FILTER USER
     };
 
-    // 2. QUERY CATEGORY
+    // 2. QUERY CATEGORY - FILTER BY USER
     const categoryQuery = {
       text: `SELECT category, type, SUM(amount) AS total 
              FROM expenses 
+             LEFT JOIN wallets ON expenses.wallet_id = wallets.id
+             WHERE wallets.owner = $1
              GROUP BY category, type 
              ORDER BY total DESC`,
+      values: [credentialId] // FILTER USER
     };
 
     const [summaryResult, categoryResult] = await Promise.all([

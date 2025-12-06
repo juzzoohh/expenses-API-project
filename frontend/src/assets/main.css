@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-    @apply bg-dashboard-bg text-text-main;
+:root {
+  /* DARK MODE (DEFAULT) */
+  --bg-dashboard: #0B0B1E;
+  --bg-card: #161630;
+  --text-main: #FFFFFF;
+  --text-muted: #808191;
+  --border-color: rgba(255, 255, 255, 0.1);
+}
+
+.light-mode {
+  /* LIGHT MODE */
+  --bg-dashboard: #F3F4F6; /* Abu terang */
+  --bg-card: #FFFFFF;      /* Putih */
+  --text-main: #1F2937;    /* Hitam abu */
+  --text-muted: #6B7280;   /* Abu medium */
+  --border-color: rgba(0, 0, 0, 0.1);
 }

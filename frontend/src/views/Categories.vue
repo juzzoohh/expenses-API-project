@@ -1,15 +1,14 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { useThemeStore } from '../stores/theme';
 import api from '../api';
-import { useAuthStore } from '../stores/auth';
 
-const auth = useAuthStore();
+const theme = useThemeStore();
 const categories = ref([]);
 const newCatName = ref('');
-const newCatType = ref('EXPENSE'); // Default Expense
+const newCatType = ref('EXPENSE');
 const isLoading = ref(false);
 
-// Filter kategori biar rapi (Kiri Income, Kanan Expense)
 const expenseCats = computed(() => categories.value.filter(c => c.type === 'EXPENSE'));
 const incomeCats = computed(() => categories.value.filter(c => c.type === 'INCOME'));
 
@@ -29,8 +28,8 @@ const addCategory = async () => {
       type: newCatType.value
     });
     
-    newCatName.value = ''; // Reset input
-    fetchCategories(); // Refresh list
+    newCatName.value = '';
+    fetchCategories();
   } catch (error) {
     alert('Gagal menambah kategori');
   } finally { isLoading.value = false; }
@@ -39,7 +38,7 @@ const addCategory = async () => {
 const deleteCategory = async (id) => {
   if(!confirm("Yakin hapus kategori ini?")) return;
   try {
-    await api.delete(`http://localhost:9000/categories/${id}`);
+    await api.delete(`/categories/${id}`);
     fetchCategories();
   } catch (error) { alert("Gagal hapus"); }
 };
@@ -49,20 +48,64 @@ onMounted(fetchCategories);
 
 <template>
   <div>
-    <h1 class="text-3xl font-bold text-white mb-8">Manage Categories 🏷️</h1>
+    <h1 
+      :class="[
+        'text-3xl font-bold mb-8',
+        theme.isDark ? 'text-white' : 'text-gray-900'
+      ]"
+    >
+      Manage Categories 🏷️
+    </h1>
 
-    <div class="bg-card-bg p-6 rounded-3xl border border-white/10 mb-8">
-      <h3 class="text-white font-bold mb-4">Add New Category</h3>
+    <div 
+      :class="[
+        'p-6 rounded-3xl border mb-8',
+        theme.isDark 
+          ? 'bg-card-bg border-white/10' 
+          : 'bg-white border-gray-200 shadow-sm'
+      ]"
+    >
+      <h3 
+        :class="[
+          'font-bold mb-4',
+          theme.isDark ? 'text-white' : 'text-gray-900'
+        ]"
+      >
+        Add New Category
+      </h3>
       <form @submit.prevent="addCategory" class="flex gap-4 flex-col md:flex-row">
         
-        <select v-model="newCatType" class="bg-dashboard-bg p-3 rounded-xl text-white border border-white/10 focus:border-accent outline-none">
+        <select 
+          v-model="newCatType" 
+          :class="[
+            'p-3 rounded-xl border focus:border-accent outline-none',
+            theme.isDark 
+              ? 'bg-dashboard-bg text-white border-white/10' 
+              : 'bg-gray-50 text-gray-900 border-gray-200'
+          ]"
+        >
           <option value="EXPENSE">🔴 Expense</option>
           <option value="INCOME">🟢 Income</option>
         </select>
 
-        <input v-model="newCatName" type="text" placeholder="Category Name (e.g. Skincare)" class="flex-1 bg-dashboard-bg p-3 rounded-xl text-white border border-white/10 focus:border-accent outline-none" required>
+        <input 
+          v-model="newCatName" 
+          type="text" 
+          placeholder="Category Name (e.g. Skincare)" 
+          :class="[
+            'flex-1 p-3 rounded-xl border focus:border-accent outline-none',
+            theme.isDark 
+              ? 'bg-dashboard-bg text-white border-white/10' 
+              : 'bg-gray-50 text-gray-900 border-gray-200'
+          ]"
+          required
+        >
         
-        <button type="submit" :disabled="isLoading" class="bg-accent hover:bg-accent-hover text-white px-6 py-3 rounded-xl font-bold transition shadow-lg">
+        <button 
+          type="submit" 
+          :disabled="isLoading" 
+          class="bg-accent hover:bg-accent-hover text-white px-6 py-3 rounded-xl font-bold transition shadow-lg"
+        >
           + Add
         </button>
       </form>
@@ -73,22 +116,88 @@ onMounted(fetchCategories);
       <div>
         <h3 class="text-danger font-bold mb-4 flex items-center gap-2">🔴 Expense Categories</h3>
         <div class="space-y-3">
-          <div v-for="c in expenseCats" :key="c.id" class="bg-card-bg p-4 rounded-xl border border-white/5 flex justify-between items-center group">
-            <span class="text-white">{{ c.name }}</span>
-            <button @click="deleteCategory(c.id)" class="text-text-muted hover:text-danger opacity-0 group-hover:opacity-100 transition">🗑️</button>
+          <div 
+            v-for="c in expenseCats" 
+            :key="c.id" 
+            :class="[
+              'p-4 rounded-xl border flex justify-between items-center group',
+              theme.isDark 
+                ? 'bg-card-bg border-white/5' 
+                : 'bg-white border-gray-200 shadow-sm'
+            ]"
+          >
+            <span 
+              :class="[
+                theme.isDark ? 'text-white' : 'text-gray-900'
+              ]"
+            >
+              {{ c.name }}
+            </span>
+            <button 
+              @click="deleteCategory(c.id)" 
+              :class="[
+                'opacity-0 group-hover:opacity-100 transition',
+                theme.isDark 
+                  ? 'text-text-muted hover:text-danger' 
+                  : 'text-gray-400 hover:text-danger'
+              ]"
+            >
+              🗑️
+            </button>
           </div>
-          <div v-if="expenseCats.length === 0" class="text-text-muted text-sm italic">Belum ada kategori pengeluaran.</div>
+          <div 
+            v-if="expenseCats.length === 0" 
+            :class="[
+              'text-sm italic',
+              theme.isDark ? 'text-text-muted' : 'text-gray-500'
+            ]"
+          >
+            Belum ada kategori pengeluaran.
+          </div>
         </div>
       </div>
 
       <div>
         <h3 class="text-success font-bold mb-4 flex items-center gap-2">🟢 Income Categories</h3>
         <div class="space-y-3">
-          <div v-for="c in incomeCats" :key="c.id" class="bg-card-bg p-4 rounded-xl border border-white/5 flex justify-between items-center group">
-            <span class="text-white">{{ c.name }}</span>
-            <button @click="deleteCategory(c.id)" class="text-text-muted hover:text-danger opacity-0 group-hover:opacity-100 transition">🗑️</button>
+          <div 
+            v-for="c in incomeCats" 
+            :key="c.id" 
+            :class="[
+              'p-4 rounded-xl border flex justify-between items-center group',
+              theme.isDark 
+                ? 'bg-card-bg border-white/5' 
+                : 'bg-white border-gray-200 shadow-sm'
+            ]"
+          >
+            <span 
+              :class="[
+                theme.isDark ? 'text-white' : 'text-gray-900'
+              ]"
+            >
+              {{ c.name }}
+            </span>
+            <button 
+              @click="deleteCategory(c.id)" 
+              :class="[
+                'opacity-0 group-hover:opacity-100 transition',
+                theme.isDark 
+                  ? 'text-text-muted hover:text-danger' 
+                  : 'text-gray-400 hover:text-danger'
+              ]"
+            >
+              🗑️
+            </button>
           </div>
-          <div v-if="incomeCats.length === 0" class="text-text-muted text-sm italic">Belum ada kategori pemasukan.</div>
+          <div 
+            v-if="incomeCats.length === 0" 
+            :class="[
+              'text-sm italic',
+              theme.isDark ? 'text-text-muted' : 'text-gray-500'
+            ]"
+          >
+            Belum ada kategori pemasukan.
+          </div>
         </div>
       </div>
 

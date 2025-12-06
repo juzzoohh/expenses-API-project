@@ -1,9 +1,8 @@
 # 💰 Fina - Personal Finance Assistant
 
-**Fina** adalah aplikasi manajemen keuangan pribadi modern...
-(deskripsi singkat...)
+**Fina** adalah aplikasi manajemen keuangan pribadi modern yang dirancang untuk membantu Anda melacak, merencanakan, dan mengontrol keuangan dengan cerdas.
 
-![License](...) ![Vue](...) (badges...)
+![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Vue](https://img.shields.io/badge/vue.js-v3-green) ![Node](https://img.shields.io/badge/node.js-v18-green)
 
 ---
 
@@ -13,13 +12,17 @@ Berikut adalah tampilan antarmuka Fina yang responsif dan modern:
 
 | **Desktop Dashboard** | **Mobile View** |
 |:---:|:---:|
-| ![Desktop Dashboard](./src/assets/Desktop.png) | ![Mobile View](./src/assets/Adnroid.png) |
+| ![Desktop Dashboard](./frontend/src/assets/Desktop.png) | ![Mobile View](./frontend/src/assets/Android.png) |
 
-> *Tampilan Dark Mode yang nyaman di mata dengan visualisasi data interaktif.*
+> *Tampilan antarmuka adaptif dengan dukungan **Dark Mode** & **Light Mode** untuk kenyamanan visual maksimal.*
 
 ---
 
 ## ✨ Fitur Utama
+
+### 🎨 UI/UX & Kustomisasi (NEW)
+- **Tema Dinamis:** Beralih antara **Dark Mode** (elegan & nyaman di mata) dan **Light Mode** (bersih & jelas) dengan satu klik.
+- **Responsif:** Tampilan sidebar dan layout yang menyesuaikan otomatis di Desktop maupun Mobile.
 
 ### 🔐 Autentikasi & Keamanan
 - **Register & Login** (JWT Authentication & Bcrypt).
@@ -49,8 +52,8 @@ Berikut adalah tampilan antarmuka Fina yang responsif dan modern:
 ### Frontend
 - **Framework:** Vue.js 3 (Composition API)
 - **Build Tool:** Vite
-- **Styling:** Tailwind CSS
-- **State Management:** Pinia
+- **Styling:** Tailwind CSS (dengan konfigurasi Dark Mode class strategy)
+- **State Management:** Pinia (Auth & Theme Store)
 - **HTTP Client:** Axios (Custom Instance)
 - **Visualization:** Chart.js & Vue-Chartjs
 - **Utilities:** jsPDF (Report Generation)
@@ -148,10 +151,10 @@ Project ini menggunakan PostgreSQL. Pastikan kamu sudah membuat database bernama
 
 ## 👤 Author
 
-Dibuat dengan ❤️ dan ☕ oleh **[Nama Kamu]**.
+Dibuat dengan ❤️ dan ☕ oleh **Juzzoohh**.
 
 Temukan saya di:
 
-  - **GitHub:** [github.com/username-kamu](https://www.google.com/search?q=https://github.com/juzzoohh)
-  - **Instagram:** [@username-kamu](https://www.google.com/search?q=https://instagram.com/sanrozii)
-  - **LinkedIn:** [linkedin.com/in/username-kamu](https://www.google.com/search?q=https://linkedin.com/in/muhamad-ichsan-fachrulrozi-50216731b)
+  - **GitHub:** [github.com/juzzoohh](https://github.com/juzzoohh)
+  - **Instagram:** [@sanrozii](https://instagram.com/sanrozii)
+  - **LinkedIn:** [Muhamad Ichsan Fachrulrozi](https://www.google.com/search?q=https://linkedin.com/in/muhamad-ichsan-fachrulrozi-50216731b)

@@ -1,10 +1,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useThemeStore } from '../stores/theme';
 import api from '../api';
-import { useAuthStore } from '../stores/auth';
 import ModalBudget from '../components/ModalBudget.vue';
 
-const auth = useAuthStore();
+const theme = useThemeStore();
 const budgets = ref([]);
 const isModalOpen = ref(false);
 
@@ -14,16 +14,13 @@ const fetchBudgets = async () => {
   try {
     const res = await api.get('/budgets');
     budgets.value = res.data.data.budgets;
-  } catch (error) {
-    console.error(error);
-  }
+  } catch (error) { console.error(error); }
 };
 
-// Fungsi Warna Progress Bar
-const getProgressColor = (status) => {
-  if (status === 'OVER') return 'bg-danger shadow-[0_0_10px_rgba(248,113,113,0.5)]'; // Merah Menyala
-  if (status === 'WARNING') return 'bg-orange-400'; // Kuning
-  return 'bg-success'; // Hijau
+const getStatusStyle = (status) => {
+  if (status === 'OVER') return { bg: 'bg-danger/20', text: 'text-danger', border: 'border-danger' };
+  if (status === 'WARNING') return { bg: 'bg-orange-500/20', text: 'text-orange-400', border: 'border-orange-400' };
+  return { bg: 'bg-success/20', text: 'text-success', border: 'border-success' };
 };
 
 onMounted(fetchBudgets);
@@ -33,55 +30,138 @@ onMounted(fetchBudgets);
   <div>
     <header class="flex justify-between items-center mb-8">
       <div>
-        <h1 class="text-3xl font-bold text-white">Monthly Budget 🛡️</h1>
-        <p class="text-text-muted mt-1">Jaga pengeluaranmu agar tidak boncos</p>
+        <h1 
+          :class="[
+            'text-3xl font-bold',
+            theme.isDark ? 'text-white' : 'text-gray-900'
+          ]"
+        >
+          Budget Monitoring 🛡️
+        </h1>
+        <p 
+          :class="[
+            'mt-1',
+            theme.isDark ? 'text-text-muted' : 'text-gray-600'
+          ]"
+        >
+          Jaga pengeluaranmu agar tidak boncos
+        </p>
       </div>
-      <button @click="isModalOpen = true" class="bg-accent hover:bg-accent-hover text-white px-6 py-3 rounded-xl font-bold shadow-lg transition">
+      <button 
+        @click="isModalOpen = true" 
+        class="bg-accent hover:bg-accent-hover text-white px-6 py-3 rounded-xl font-bold shadow-lg transition"
+      >
         + Set Limit
       </button>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      
-      <div v-for="b in budgets" :key="b.id" class="bg-card-bg p-6 rounded-3xl border border-white/5 hover:border-accent/30 transition group">
-        <div class="flex justify-between items-center mb-4">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-xl">
-               <span v-if="b.category === 'Food'">🍔</span>
-               <span v-else-if="b.category === 'Transport'">🚗</span>
-               <span v-else-if="b.category === 'Entertainment'">🎬</span>
-               <span v-else>📦</span>
-            </div>
-            <div>
-              <h3 class="font-bold text-white">{{ b.category }}</h3>
-              <p class="text-xs text-text-muted">Limit: {{ formatRupiah(b.limit) }}</p>
-            </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div 
+        v-for="b in budgets" 
+        :key="b.id" 
+        :class="[
+          'p-6 rounded-3xl border transition duration-300',
+          theme.isDark 
+            ? `bg-card-bg ${getStatusStyle(b.status).border}` 
+            : `bg-white border-gray-200 ${b.status !== 'SAFE' ? getStatusStyle(b.status).border : ''}`
+        ]"
+      >
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 
+              :class="[
+                'text-xl font-bold',
+                theme.isDark ? 'text-white' : 'text-gray-900'
+              ]"
+            >
+              {{ b.category }}
+            </h3>
+            <p 
+              :class="[
+                'text-xs mt-1',
+                theme.isDark ? 'text-text-muted' : 'text-gray-600'
+              ]"
+            >
+              Limit: {{ formatRupiah(b.limit) }}
+            </p>
           </div>
-          
-          <div :class="`px-3 py-1 rounded-lg text-xs font-bold ${b.status === 'OVER' ? 'bg-red-500/20 text-danger' : 'bg-green-500/20 text-success'}`">
-            {{ b.status === 'OVER' ? 'OVER BUDGET!' : (b.remaining < 0 ? '0 Left' : formatRupiah(b.remaining) + ' Left') }}
+          <div :class="`${getStatusStyle(b.status).bg} ${getStatusStyle(b.status).text} px-3 py-1 rounded-lg text-xs font-bold`">
+            {{ b.percentage }}%
           </div>
         </div>
 
-        <div class="relative w-full h-4 bg-dashboard-bg rounded-full overflow-hidden">
+        <div 
+          :class="[
+            'w-full h-4 rounded-full mb-4 relative overflow-hidden',
+            theme.isDark ? 'bg-dashboard-bg' : 'bg-gray-200'
+          ]"
+        >
           <div 
-            :class="`h-full rounded-full transition-all duration-1000 ${getProgressColor(b.status)}`"
+            :class="`h-4 rounded-full transition-all duration-1000 ${
+              b.status === 'OVER' ? 'bg-danger' : 
+              b.status === 'WARNING' ? 'bg-orange-400' : 'bg-success'
+            }`"
             :style="{ width: Math.min(b.percentage, 100) + '%' }"
           ></div>
         </div>
-        
-        <div class="flex justify-between mt-2 text-xs">
-          <span class="text-white font-bold">{{ formatRupiah(b.spent) }} Used</span>
-          <span class="text-text-muted">{{ b.percentage }}%</span>
+
+        <div class="flex justify-between items-end">
+          <div>
+            <p 
+              :class="[
+                'text-xs',
+                theme.isDark ? 'text-text-muted' : 'text-gray-600'
+              ]"
+            >
+              Terpakai
+            </p>
+            <p 
+              :class="[
+                'font-bold text-lg',
+                theme.isDark ? 'text-white' : 'text-gray-900'
+              ]"
+            >
+              {{ formatRupiah(b.spent) }}
+            </p>
+          </div>
+          <div class="text-right">
+            <p 
+              :class="[
+                'text-xs',
+                theme.isDark ? 'text-text-muted' : 'text-gray-600'
+              ]"
+            >
+              Sisa
+            </p>
+            <p 
+              :class="[
+                'font-bold text-sm',
+                b.remaining < 0 ? 'text-danger' : (theme.isDark ? 'text-success' : 'text-green-600')
+              ]"
+            >
+              {{ formatRupiah(Math.max(b.remaining, 0)) }}
+            </p>
+          </div>
         </div>
       </div>
 
-      <div v-if="budgets.length === 0" class="col-span-full text-center py-10 border border-dashed border-white/10 rounded-3xl text-text-muted">
-        Belum ada budget yang diatur bulan ini. Pasang limit biar hemat!
+      <div 
+        v-if="budgets.length === 0" 
+        :class="[
+          'col-span-full text-center py-20 border border-dashed rounded-3xl',
+          theme.isDark 
+            ? 'text-text-muted border-white/10' 
+            : 'text-gray-500 border-gray-300'
+        ]"
+      >
+        Belum ada budget yang diatur. Mulai atur batasmu!
       </div>
-
     </div>
 
-    <ModalBudget :isOpen="isModalOpen" @close="isModalOpen = false" @refresh="fetchBudgets" />
+    <ModalBudget 
+      :isOpen="isModalOpen" 
+      @close="isModalOpen = false" 
+      @refresh="fetchBudgets" 
+    />
   </div>
 </template>

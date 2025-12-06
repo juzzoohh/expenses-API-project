@@ -1,16 +1,18 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from './stores/auth';
+import { useThemeStore } from './stores/theme';
 import Sidebar from './components/Sidebar.vue';
-import Footer from './components/Footer.vue'; // Pastikan sudah diimport
+import Footer from './components/Footer.vue';
 
 const auth = useAuthStore();
+const theme = useThemeStore();
 const isLoggedIn = computed(() => !!auth.token);
 
-// State untuk Sidebar Mobile
 const isMobileMenuOpen = ref(false);
 
 onMounted(() => {
+  theme.initTheme(); // Inisialisasi theme
   if (isLoggedIn.value) auth.fetchUser();
 });
 </script>
@@ -18,17 +20,28 @@ onMounted(() => {
 <template>
   <div
     v-if="isLoggedIn"
-    class="bg-dashboard-bg min-h-screen text-text-main flex font-sans"
+    :class="[
+      'min-h-screen text-text-main flex font-sans transition-colors duration-300',
+      theme.isDark ? 'bg-dashboard-bg' : 'bg-light-dashboard-bg'
+    ]"
   >
     <Sidebar :isOpen="isMobileMenuOpen" @close="isMobileMenuOpen = false" />
 
     <main
-      class="flex-1 p-4 md:p-8 bg-dashboard-bg min-h-screen transition-all duration-300 ml-0 md:ml-64 w-full flex flex-col"
+      :class="[
+        'flex-1 p-4 md:p-8 min-h-screen transition-all duration-300 ml-0 md:ml-64 w-full flex flex-col',
+        theme.isDark ? 'bg-dashboard-bg' : 'bg-light-dashboard-bg'
+      ]"
     >
       <div class="md:hidden flex items-center gap-4 mb-6">
         <button
           @click="isMobileMenuOpen = true"
-          class="p-2 bg-card-bg rounded-lg border border-white/10 text-white hover:bg-accent transition"
+          :class="[
+            'p-2 rounded-lg border transition',
+            theme.isDark 
+              ? 'bg-card-bg border-white/10 text-white hover:bg-accent' 
+              : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-100'
+          ]"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -45,7 +58,23 @@ onMounted(() => {
             />
           </svg>
         </button>
-        <h1 class="text-xl font-bold text-white">Fina App</h1>
+        <h1 :class="['text-xl font-bold', theme.isDark ? 'text-white' : 'text-gray-900']">
+          Fina App
+        </h1>
+
+        <!-- TOGGLE THEME BUTTON (Mobile) -->
+        <button
+          @click="theme.toggleTheme()"
+          :class="[
+            'ml-auto p-2 rounded-lg border transition',
+            theme.isDark 
+              ? 'bg-card-bg border-white/10 text-white hover:bg-accent' 
+              : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-100'
+          ]"
+        >
+          <span v-if="theme.isDark">☀️</span>
+          <span v-else>🌙</span>
+        </button>
       </div>
 
       <router-view v-slot="{ Component }">
@@ -60,7 +89,7 @@ onMounted(() => {
     </main>
   </div>
 
-  <div v-else class="bg-dashboard-bg min-h-screen">
+  <div v-else :class="['min-h-screen', theme.isDark ? 'bg-dashboard-bg' : 'bg-light-dashboard-bg']">
     <router-view />
   </div>
 </template>
